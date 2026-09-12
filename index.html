@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zerella — Luxury Fragrances</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="Expires" content="0"/>
+
+  <!-- Google Fonts: Good Vibes (closest web-safe to "Good Times" style) + Raleway body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Cinzel:wght@400;500;600&family=Raleway:wght@200;300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+
+  <!-- Good Times font via CDN (exact match) -->
+  <style>
+    @font-face {
+      font-family: 'Good Times';
+      src: url('https://db.onlinewebfonts.com/t/02930cb48b4e05c252c8f82a8aef82d4.woff2') format('woff2'),
+           url('https://db.onlinewebfonts.com/t/02930cb48b4e05c252c8f82a8aef82d4.woff') format('woff');
+      font-weight: normal; font-style: normal; font-display: swap;
+    }
+  </style>
+
+  <style>
+  /* ═══════════════════════════════════════════════════════
+     ROOT VARIABLES — NAVY + GOLD
+  ═══════════════════════════════════════════════════════ */
+  :root {
+    --navy-deep:   #050d1a;
+    --navy-soft:   #091428;
+    --navy-card:   #0d1e38;
+    --navy-mid:    #122444;
+    --navy-border: #1e3560;
+    --navy-light:  #1a3a6e;
+    --gold:        #c9a84c;
+    --gold-light:  #e8cb78;
+    --gold-dark:   #9a7030;
+    --gold-muted:  rgba(201,168,76,0.14);
+    --cream:       #f0eade;
+    --cream-dim:   rgba(240,234,222,0.58);
+    --gray:        #7a8aaa;
+    --gray-dark:   #4a5a7a;
+    --error:       #e05050;
+    --success:     #50c878;
+    --warn:        #e0a030;
+    /* Good Times as display font, Raleway as body */
+    --font-gt:     'Good Times', 'Righteous', 'Cinzel', Georgia, serif;
+    --font-serif:  'Playfair Display', Georgia, serif;
+    --font-body:   'Raleway', sans-serif;
+    --ease:        cubic-bezier(.25,.46,.45,.94);
+    --ease-out:    cubic-bezier(0,0,.2,1);
+    --shadow:      0 24px 64px rgba(0,0,0,.65);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    background: var(--navy-deep); color: var(--cream);
+    font-family: var(--font-body); font-weight: 300;
+    line-height: 1.6; overflow-x: hidden;
+  }
+  img    { display: block; max-width: 100%; }
+  button { cursor: pointer; border: none; outline: none; background: none; font-family: inherit; }
+  input, textarea, select { font-family: inherit; background: none; border: none; outline: none; color: inherit; }
+  a { color: inherit; text-decoration: none; }
+  ul { list-style: none; }
+  ::-webkit-scrollbar       { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--navy-deep); }
+  ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 3px; }
+
+  /* ═══════════════════════════════════════════════════════
+     LOADER
+  ═══════════════════════════════════════════════════════ */
+  #loadingOverlay {
+    position: fixed; inset: 0; z-index: 99999;
+    background: var(--navy-deep);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+    transition: opacity .55s var(--ease), visibility .55s;
+  }
+  #loadingOverlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+  .loader-logo {
+    font-family: var(--font-gt); font-size: 2.2rem; font-weight: 400;
+    letter-spacing: .12em; color: var(--gold); text-transform: uppercase;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .loader-bar  { width: 130px; height: 2px; background: var(--navy-border); overflow: hidden; }
+  .loader-fill { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); animation: loaderSlide 1.5s ease-in-out infinite; }
+
+  /* ═══════════════════════════════════════════════════════
+     TOASTS
+  ═══════════════════════════════════════════════════════ */
+  #toastWrap {
+    position: fixed; bottom: 24px; right: 24px; z-index: 99998;
+    display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+  }
+  .toast {
+    background: var(--navy-card); border: 1px solid var(--navy-border);
+    border-left: 3px solid var(--gold); color: var(--cream);
+    font-size: .78rem; letter-spacing: .04em; padding: 13px 20px;
+    min-width: 220px; max-width: 320px; box-shadow: var(--shadow);
+    animation: toastIn .3s var(--ease-out) forwards; pointer-events: auto;
+  }
+  .toast.error   { border-left-color: var(--error); }
+  .toast.success { border-left-color: var(--success); }
+  .toast.warn    { border-left-color: var(--warn); }
+  .toast.out     { animation: toastOut .3s var(--ease) forwards; }
+
+  /* ═══════════════════════════════════════════════════════
+     NAVBAR
+  ═══════════════════════════════════════════════════════ */
+  #navbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+    height: 66px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 5vw;
+    background: rgba(5,13,26,.93); backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(201,168,76,.12); transition: box-shadow .3s;
+  }
+  #navbar.scrolled { box-shadow: 0 8px 40px rgba(0,0,0,.55); }
+
+  /* Logo area */
+  .nav-left { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+
+  /* Logo image — auto-sized, max height 40px, no cropping */
+  #siteLogoImg {
+    max-height: 40px;
+    max-width: 120px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: none;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Good Times font on navbar logo */
+  .nav-logo {
+    font-family: var(--font-gt);
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: .12em;
+    color: var(--gold);
+    text-transform: uppercase;
+    transition: color .3s;
+    line-height: 1;
+  }
+  .nav-logo:hover { color: var(--gold-light); }
+
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .nav-search {
+    display: flex; align-items: center; gap: 8px;
+    border: 1px solid rgba(201,168,76,.2); padding: 7px 13px; transition: border-color .3s;
+  }
+  .nav-search:focus-within { border-color: var(--gold); }
+  .nav-search input { width: 140px; font-size: .76rem; letter-spacing: .05em; color: var(--cream); }
+  .nav-search input::placeholder { color: var(--gray); }
+  .search-icon { color: var(--gold); font-size: .9rem; }
+  .nav-select {
+    font-size: .68rem; letter-spacing: .06em; color: var(--cream);
+    padding: 8px 10px; border: 1px solid rgba(201,168,76,.2);
+    background: transparent; appearance: none; cursor: pointer;
+    max-width: 110px;
+  }
+  .nav-select option { background: var(--navy-soft); }
+
+  /* ═══════════════════════════════════════════════════════
+     HERO
+  ═══════════════════════════════════════════════════════ */
+  #hero {
+    position: relative; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; padding-top: 66px;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 68% 38%, rgba(26,58,110,.45) 0%, transparent 58%),
+      radial-gradient(ellipse at 20% 75%, rgba(201,168,76,.06) 0%, transparent 50%),
+      var(--navy-soft);
+    background-size: cover; background-position: center;
+  }
+  .hero-bg::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(160deg, rgba(5,13,26,.78) 0%, rgba(5,13,26,.35) 45%, rgba(5,13,26,.9) 100%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+  }
+  .hero-grid::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(26,58,110,.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(26,58,110,.1) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-content {
+    position: relative; z-index: 2; text-align: center;
+    padding: 0 6vw; max-width: 900px;
+  }
+  .hero-thin-line {
+    width: 48px; height: 1px; background: var(--gold); margin: 0 auto 28px;
+    opacity: 0; animation: fadeUp .9s .1s var(--ease-out) forwards;
+  }
+  .hero-eyebrow {
+    font-family: var(--font-gt);
+    font-size: .55rem; letter-spacing: .4em; text-transform: uppercase; color: var(--gold);
+    margin-bottom: 22px; opacity: 0; animation: fadeUp .9s .25s var(--ease-out) forwards;
+  }
+  #heroHeadline {
+    font-family: var(--font-gt);
+    font-size: clamp(2rem, 6vw, 5rem); font-weight: 400;
+    line-height: 1.15; letter-spacing: .08em; color: var(--cream);
+    text-transform: uppercase;
+    margin-bottom: 26px; opacity: 0; animation: fadeUp 1s .45s var(--ease-out) forwards;
+  }
+  #heroHeadline em { color: var(--gold); font-style: normal; }
+  #heroBanner {
+    font-size: clamp(.82rem, 1.5vw, 1rem); font-weight: 300;
+    letter-spacing: .1em; color: var(--cream-dim); line-height: 1.85;
+    margin: 0 auto 52px; max-width: 640px;
+    opacity: 0; animation: fadeUp 1s .65s var(--ease-out) forwards;
+  }
+  .hero-ctas {
+    display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+    opacity: 0; animation: fadeUp 1s .85s var(--ease-out) forwards;
+  }
+  .hero-scroll {
+    position: absolute; bottom: 38px; left: 50%; transform: translateX(-50%);
+    z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 6px;
+    opacity: 0; animation: fadeIn .9s 1.4s forwards;
+  }
+  .hero-scroll span { font-size: .54rem; letter-spacing: .35em; text-transform: uppercase; color: var(--gold-dark); }
+  .scroll-line { width: 1px; height: 52px; background: linear-gradient(to bottom, var(--gold-dark), transparent); animation: scrollPulse 1.8s ease-in-out infinite; }
+
+  /* ═══════════════════════════════════════════════════════
+     GLOBAL BUTTONS — fully responsive
+  ═══════════════════════════════════════════════════════ */
+  .btn-gold {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: var(--font-gt); font-size: .62rem; letter-spacing: .12em;
+    text-transform: uppercase; font-weight: 400; color: var(--navy-deep);
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+    padding: 14px 28px; position: relative; overflow: hidden;
+    transition: all .35s var(--ease); white-space: nowrap;
+    min-height: 44px; /* touch target */
+  }
+  .btn-gold::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,0); transition:background .35s; }
+  .btn-gold:hover::after { background: rgba(255,255,255,.13); }
+  .btn-gold:hover { box-shadow: 0 12px 40px rgba(201,168,76,.32); transform: translateY(-2px); }
+  .btn-gold:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-ghost {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: var(--font-gt); font-size: .62rem; letter-spacing: .12em;
+    text-transform: uppercase; font-weight: 400; color: var(--gold);
+    border: 1px solid rgba(201,168,76,.45); padding: 14px 28px;
+    transition: all .35s var(--ease); white-space: nowrap;
+    min-height: 44px; /* touch target */
+  }
+  .btn-ghost:hover { background: rgba(201,168,76,.08); border-color: var(--gold); }
+
+  /* ═══════════════════════════════════════════════════════
+     MARQUEE
+  ═══════════════════════════════════════════════════════ */
+  .marquee-strip {
+    border-top: 1px solid rgba(201,168,76,.12); border-bottom: 1px solid rgba(201,168,76,.12);
+    overflow: hidden; background: var(--navy-deep);
+  }
+  .marquee-track { display: flex; gap: 52px; padding: 18px 0; width: max-content; animation: marqueeRoll 28s linear infinite; }
+  .marquee-item { display: flex; align-items: center; gap: 18px; font-family: var(--font-gt); font-size: .52rem; letter-spacing: .3em; text-transform: uppercase; color: var(--gold-dark); white-space: nowrap; }
+  .marquee-gem { color: var(--gold); }
+
+  /* ═══════════════════════════════════════════════════════
+     SECTION HEADERS
+  ═══════════════════════════════════════════════════════ */
+  .section-head { text-align: center; margin-bottom: 64px; }
+  .section-tag { font-family: var(--font-gt); font-size: .52rem; letter-spacing: .4em; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; }
+  .section-title { font-family: var(--font-gt); font-size: clamp(1.5rem, 3.5vw, 2.5rem); font-weight: 400; letter-spacing: .08em; color: var(--cream); line-height: 1.2; text-transform: uppercase; }
+  .section-title em { color: var(--gold); font-style: normal; }
+  .section-line { width: 52px; height: 1px; background: linear-gradient(to right, transparent, var(--gold), transparent); margin: 20px auto 0; }
+
+  /* ═══════════════════════════════════════════════════════
+     PRODUCTS GRID
+  ═══════════════════════════════════════════════════════ */
+  #products { padding: 90px 4vw; background: var(--navy-soft); }
+
+  #productsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 3px; max-width: 1360px; margin: 0 auto;
+  }
+
+  .product-card {
+    background: var(--navy-card); position: relative; overflow: hidden;
+    transition: transform .4s var(--ease), box-shadow .4s var(--ease); cursor: pointer;
+    display: flex; flex-direction: column;
+  }
+  .product-card:hover { transform: translateY(-5px); box-shadow: 0 28px 64px rgba(0,0,0,.6), 0 0 0 1px rgba(201,168,76,.18); z-index: 2; }
+
+  .card-img { aspect-ratio: 3/4; overflow: hidden; position: relative; flex-shrink: 0; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s var(--ease); }
+  .product-card:hover .card-img img { transform: scale(1.06); }
+
+  .card-badge {
+    position: absolute; top: 12px; left: 12px;
+    font-family: var(--font-gt); font-size: .48rem; letter-spacing: .18em; text-transform: uppercase;
+    background: var(--gold); color: var(--navy-deep); padding: 4px 10px; font-weight: 400;
+  }
+
+  .card-overlay {
+    position: absolute; inset: 0; background: rgba(5,13,26,.78);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    opacity: 0; transition: opacity .35s var(--ease);
+  }
+  .product-card:hover .card-overlay { opacity: 1; }
+
+  /* Card overlay buttons — good touch targets */
+  .cbtn {
+    font-family: var(--font-gt); font-size: .5rem; letter-spacing: .14em; text-transform: uppercase;
+    font-weight: 400; padding: 11px 26px; transition: all .3s var(--ease);
+    min-height: 40px; min-width: 140px; text-align: center;
+  }
+  .cbtn-primary { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%); color: var(--navy-deep); }
+  .cbtn-primary:hover { opacity: .88; transform: scale(1.02); }
+  .cbtn-secondary { color: var(--gold); border: 1px solid rgba(201,168,76,.5); }
+  .cbtn-secondary:hover { background: rgba(201,168,76,.1); }
+
+  /* Card info */
+  .card-info { padding: 18px 20px 20px; border-top: 1px solid var(--navy-border); flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .card-cat  { font-family: var(--font-gt); font-size: .48rem; letter-spacing: .25em; text-transform: uppercase; color: var(--gold-dark); }
+  .card-name { font-family: var(--font-gt); font-size: 1rem; font-weight: 400; color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: .06em; }
+  .card-desc { font-size: .74rem; color: var(--gray); line-height: 1.65; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+  /* How-to-use section on card */
+  .card-howto {
+    font-size: .7rem; color: rgba(201,168,76,.75); line-height: 1.6;
+    border-top: 1px solid rgba(30,53,96,.6); padding-top: 8px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .card-howto-label { font-family: var(--font-gt); font-size: .42rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-dark); margin-bottom: 3px; }
+
+  .card-foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(30,53,96,.6); }
+  .card-price { font-family: var(--font-gt); font-size: 1.1rem; font-weight: 400; color: var(--gold); letter-spacing: .06em; }
+
+  /* Small buy button on card — phone-friendly */
+  .card-buy-sm {
+    font-family: var(--font-gt); font-size: .48rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--gold); border: 1px solid rgba(201,168,76,.3);
+    padding: 9px 14px; transition: all .3s; font-weight: 400;
+    min-height: 38px;
+  }
+  .card-buy-sm:hover { background: var(--gold); color: var(--navy-deep); }
+
+  .empty-state { grid-column: 1/-1; text-align: center; padding: 100px 20px; }
+  .empty-icon  { font-size: 3rem; margin-bottom: 20px; opacity: .3; }
+  .empty-state p { font-size: .88rem; color: var(--gray); }
+
+  /* ═══════════════════════════════════════════════════════
+     FEATURES
+  ═══════════════════════════════════════════════════════ */
+  #features { padding: 80px 5vw; background: var(--navy-deep); }
+  .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1px; max-width: 1100px; margin: 0 auto; border: 1px solid var(--navy-border); }
+  .feat-item { padding: 36px 24px; text-align: center; background: var(--navy-card); border: 1px solid transparent; transition: border-color .3s, background .3s; }
+  .feat-item:hover { border-color: var(--gold-muted); background: var(--navy-mid); }
+  .feat-icon  { font-size: 1.6rem; margin-bottom: 12px; }
+  .feat-title { font-family: var(--font-gt); font-size: .55rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .feat-desc  { font-size: .75rem; color: var(--gray); line-height: 1.7; }
+
+  /* ═══════════════════════════════════════════════════════
+     ABOUT
+  ═══════════════════════════════════════════════════════ */
+  #about { padding: 110px 5vw; background: var(--navy-soft); }
+  .about-wrap { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .about-box { aspect-ratio: 3/4; background: var(--navy-card); border: 1px solid rgba(201,168,76,.12); display: flex; align-items: center; justify-content: center; font-family: var(--font-gt); font-size: 5rem; color: rgba(201,168,76,.05); position: relative; overflow: hidden; }
+  .about-box::before { content:''; position:absolute; inset:18px; border:1px solid rgba(201,168,76,.07); }
+  .about-visual { position: relative; }
+  .about-stat { position: absolute; bottom: -22px; right: -22px; background: var(--gold); color: var(--navy-deep); padding: 26px 28px; text-align: center; }
+  .about-stat-num { font-family: var(--font-gt); font-size: 2.5rem; font-weight: 400; display: block; }
+  .about-stat-lbl { font-family: var(--font-gt); font-size: .48rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 400; }
+  .about-text h2 { font-family: var(--font-gt); font-size: clamp(1.5rem, 3.5vw, 2.4rem); font-weight: 400; color: var(--cream); line-height: 1.3; margin-bottom: 26px; text-transform: uppercase; letter-spacing: .08em; }
+  .about-text h2 em { color: var(--gold); font-style: normal; }
+  .about-text p { font-size: .82rem; color: var(--cream-dim); line-height: 1.95; margin-bottom: 18px; }
+
+  /* ═══════════════════════════════════════════════════════
+     FOOTER
+  ═══════════════════════════════════════════════════════ */
+  footer { padding: 68px 5vw 28px; background: var(--navy-deep); border-top: 1px solid rgba(201,168,76,.1); }
+  .foot-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 56px; max-width: 1200px; margin: 0 auto 52px; }
+  .foot-brand { font-family: var(--font-gt); font-size: 1.5rem; color: var(--gold); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 14px; }
+  .foot-desc  { font-size: .78rem; color: var(--gray); line-height: 1.85; }
+  .foot-col-title { font-family: var(--font-gt); font-size: .5rem; letter-spacing: .28em; text-transform: uppercase; color: var(--gold); margin-bottom: 18px; }
+  .foot-col li { font-size: .78rem; color: var(--gray); margin-bottom: 10px; cursor: pointer; transition: color .3s; }
+  .foot-col li:hover { color: var(--gold); }
+  .foot-bottom { border-top: 1px solid rgba(201,168,76,.08); padding-top: 26px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .foot-bottom p { font-size: .7rem; color: rgba(122,138,170,.45); letter-spacing: .06em; }
+
+  /* ═══════════════════════════════════════════════════════
+     PRODUCT DETAIL MODAL
+  ═══════════════════════════════════════════════════════ */
+  .overlay-bg { display: none; position: fixed; inset: 0; z-index: 9000; background: rgba(5,13,26,.93); align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(10px); }
+  .overlay-bg.open { display: flex; }
+  .prod-modal {
+    background: var(--navy-card); border: 1px solid rgba(201,168,76,.18);
+    display: grid; grid-template-columns: 1fr 1fr;
+    max-width: 860px; width: 100%; max-height: 92vh; overflow: hidden;
+    position: relative; box-shadow: var(--shadow); animation: modalIn .4s var(--ease-out);
+  }
+  .prod-modal-img  { overflow: hidden; }
+  .prod-modal-img img { width: 100%; height: 100%; object-fit: cover; }
+  .prod-modal-body {
+    padding: 36px 32px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .prod-modal-cat   { font-family: var(--font-gt); font-size: .5rem; letter-spacing: .28em; text-transform: uppercase; color: var(--gold-dark); }
+  .prod-modal-name  { font-family: var(--font-gt); font-size: 1.5rem; font-weight: 400; color: var(--cream); line-height: 1.2; letter-spacing: .06em; }
+  .prod-modal-price { font-family: var(--font-gt); font-size: 1.5rem; color: var(--gold); }
+  .prod-modal-desc  { font-size: .82rem; color: var(--cream-dim); line-height: 1.85; }
+  .prod-modal-hr    { width: 40px; height: 1px; background: var(--gold-muted); }
+  /* How to use in modal */
+  .prod-modal-howto-label { font-family: var(--font-gt); font-size: .48rem; letter-spacing: .22em; text-transform: uppercase; color: var(--gold-dark); margin-bottom: 4px; }
+  .prod-modal-howto { font-size: .8rem; color: rgba(201,168,76,.8); line-height: 1.8; }
+  .prod-modal-actions { display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
+  .modal-x { position: absolute; top: 12px; right: 14px; font-size: 1.2rem; color: var(--gray); cursor: pointer; transition: color .3s; min-height: 36px; min-width: 36px; display: flex; align-items: center; justify-content: center; }
+  .modal-x:hover { color: var(--gold); }
+
+  /* ═══════════════════════════════════════════════════════
+     ADMIN OVERLAY
+  ═══════════════════════════════════════════════════════ */
+  #adminOverlay { display: none; position: fixed; inset: 0; z-index: 9200; background: var(--navy-deep); }
+  #adminOverlay.open { display: block; }
+
+  /* Gate */
+  #adminGate { display: none; width: 100%; height: 100%; align-items: center; justify-content: center; flex-direction: column; }
+  #adminGate.open { display: flex; }
+  .gate-box {
+    background: var(--navy-card); border: 1px solid rgba(201,168,76,.2);
+    padding: 52px 40px; text-align: center; width: 100%; max-width: 440px;
+    animation: modalIn .4s var(--ease-out);
+  }
+  .gate-logo { font-family: var(--font-gt); font-size: 1.8rem; letter-spacing: .12em; color: var(--gold); text-transform: uppercase; margin-bottom: 6px; }
+  .gate-sub  { font-family: var(--font-gt); font-size: .5rem; letter-spacing: .3em; text-transform: uppercase; color: var(--gray); margin-bottom: 40px; }
+  .gate-back { display: inline-block; margin-top: 18px; font-size: .62rem; letter-spacing: .15em; text-transform: uppercase; color: var(--gray); cursor: pointer; transition: color .3s; }
+  .gate-back:hover { color: var(--gold); }
+
+  /* Panel layout */
+  #adminPanel { display: none; width: 100%; height: 100vh; flex-direction: row; overflow: hidden; }
+  #adminPanel.open { display: flex; }
+
+  /* Sidebar */
+  .adm-sidebar {
+    width: 220px; height: 100vh; overflow-y: auto;
+    background: var(--navy-soft); border-right: 1px solid var(--navy-border);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .adm-logo { padding: 24px 20px 20px; border-bottom: 1px solid var(--navy-border); margin-bottom: 8px; }
+  .adm-logo-name { font-family: var(--font-gt); font-size: 1.1rem; color: var(--gold); letter-spacing: .12em; text-transform: uppercase; }
+  .adm-logo-sub  { font-family: var(--font-gt); font-size: .44rem; letter-spacing: .22em; color: var(--gray); margin-top: 4px; }
+  .adm-role-badge { margin: 0 14px 10px; font-family: var(--font-gt); font-size: .48rem; letter-spacing: .15em; text-transform: uppercase; padding: 5px 10px; text-align: center; }
+  .adm-role-badge.admin      { color: var(--gold);      border: 1px solid rgba(201,168,76,.3); }
+  .adm-role-badge.superadmin { color: var(--navy-deep); background: var(--gold); }
+
+  /* Nav buttons — min 44px touch target */
+  .adm-nav {
+    display: flex; align-items: center; gap: 10px; padding: 13px 20px; width: 100%;
+    font-family: var(--font-gt); font-size: .54rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--gray); transition: all .25s; border-left: 3px solid transparent;
+    min-height: 44px;
+  }
+  .adm-nav:hover  { color: var(--gold); background: rgba(201,168,76,.05); }
+  .adm-nav.active { color: var(--gold); border-left-color: var(--gold); background: rgba(201,168,76,.07); }
+  .sa-only { display: none; }
+
+  .adm-foot { margin-top: auto; padding: 18px 20px; border-top: 1px solid var(--navy-border); }
+  .adm-user { font-size: .64rem; color: var(--gray); margin-bottom: 12px; display: block; word-break: break-all; }
+  .btn-logout {
+    font-family: var(--font-gt); font-size: .5rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--error); border: 1px solid rgba(224,80,80,.3);
+    padding: 10px 16px; transition: all .3s; min-height: 40px; width: 100%; text-align: center;
+  }
+  .btn-logout:hover { background: rgba(224,80,80,.08); }
+
+  /* Main */
+  .adm-main { flex: 1; overflow-y: auto; padding: 32px; background: var(--navy-deep); }
+  .adm-tab  { display: none; }
+  .adm-tab.active { display: block; }
+  .adm-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 28px; flex-wrap: wrap; gap: 14px;
+    padding-bottom: 20px; border-bottom: 1px solid var(--navy-border);
+  }
+  .adm-head h2 { font-family: var(--font-gt); font-size: 1.4rem; font-weight: 400; color: var(--cream); letter-spacing: .08em; }
+
+  /* Product rows in admin */
+  .adm-row {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--navy-card); border: 1px solid var(--navy-border);
+    padding: 12px 16px; margin-bottom: 8px; transition: border-color .3s;
+  }
+  .adm-row:hover { border-color: rgba(201,168,76,.25); }
+  .adm-thumb { width: 48px; height: 48px; object-fit: cover; flex-shrink: 0; }
+  .adm-pinfo { flex: 1; min-width: 0; }
+  .adm-pinfo strong { display: block; color: var(--cream); font-size: .84rem; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .adm-pinfo span   { font-size: .7rem; color: var(--gray); }
+
+  /* Admin action buttons — properly sized for both mobile and desktop */
+  .adm-btns { display: flex; gap: 6px; flex-shrink: 0; }
+  .adb {
+    font-family: var(--font-gt); font-size: .46rem; letter-spacing: .1em; text-transform: uppercase;
+    padding: 9px 14px; transition: all .25s; min-height: 36px; white-space: nowrap;
+  }
+  .adb-e { color: var(--gold);  border: 1px solid rgba(201,168,76,.35); }
+  .adb-e:hover { background: rgba(201,168,76,.1); }
+  .adb-d { color: var(--error); border: 1px solid rgba(224,80,80,.3); }
+  .adb-d:hover { background: rgba(224,80,80,.08); }
+  .adm-empty { text-align: center; padding: 56px; color: var(--gray); font-size: .84rem; }
+
+  /* Settings cards */
+  .adm-card { background: var(--navy-card); border: 1px solid var(--navy-border); padding: 28px; margin-bottom: 20px; max-width: 680px; }
+  .adm-card h3 { font-family: var(--font-gt); font-size: .9rem; color: var(--cream); margin-bottom: 22px; padding-bottom: 12px; border-bottom: 1px solid var(--navy-border); letter-spacing: .08em; text-transform: uppercase; }
+  .wa-note { font-size: .72rem; color: var(--gray); line-height: 1.7; padding: 12px 16px; border-left: 2px solid var(--gold-dark); margin-bottom: 16px; }
+
+  /* Accounts table */
+  .acc-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+  .acc-table th { text-align: left; font-family: var(--font-gt); font-size: .48rem; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-dark); padding: 10px 14px; border-bottom: 1px solid var(--navy-border); font-weight: 400; }
+  .acc-table td { padding: 12px 14px; color: var(--cream); border-bottom: 1px solid rgba(30,53,96,.5); vertical-align: middle; font-size: .78rem; }
+  .role-pill { display: inline-block; font-family: var(--font-gt); font-size: .44rem; letter-spacing: .14em; text-transform: uppercase; padding: 3px 9px; font-weight: 400; }
+  .role-pill.admin      { color: var(--gold);      border: 1px solid rgba(201,168,76,.4); }
+  .role-pill.superadmin { background: var(--gold);  color: var(--navy-deep); }
+
+  /* Logo preview — fixed sizing, no overflow */
+  #logoPreviewAdmin {
+    max-width: 160px; max-height: 80px;
+    width: auto; height: auto;
+    object-fit: contain;
+    border: 1px solid var(--navy-border);
+    margin-top: 10px; display: none;
+    background: var(--navy-mid); padding: 8px;
+  }
+  /* Logo action buttons — always full width on mobile so they never get cut */
+  .logo-actions {
+    display: flex; flex-direction: column; gap: 10px; margin-top: 14px;
+  }
+  .logo-actions .btn-gold,
+  .logo-actions .btn-ghost {
+    width: 100%; justify-content: center;
+    padding: 14px 20px; font-size: .6rem;
+  }
+
+  /* Shared form elements */
+  .fg  { margin-bottom: 16px; }
+  .fl  { display: block; font-family: var(--font-gt); font-size: .5rem; letter-spacing: .22em; text-transform: uppercase; color: var(--gold-dark); margin-bottom: 8px; }
+  .fi  {
+    width: 100%; background: rgba(255,255,255,.04); border: 1px solid var(--navy-border);
+    color: var(--cream); padding: 12px 14px; font-size: .84rem; font-family: var(--font-body);
+    transition: border-color .3s; min-height: 44px;
+  }
+  .fi:focus { border-color: rgba(201,168,76,.5); }
+  .fi::placeholder { color: var(--gray-dark); }
+  .fi-ta  { resize: vertical; min-height: 90px; }
+  .fi-sel { appearance: none; cursor: pointer; }
+  .fi-sel option { background: var(--navy-card); }
+  .brow { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+  .brow .btn-gold, .brow .btn-ghost { flex: 1; min-width: 120px; justify-content: center; }
+  .ferr { font-size: .74rem; color: var(--error);   margin-top: 8px; min-height: 18px; }
+  .fok  { font-size: .74rem; color: var(--success);  margin-top: 8px; min-height: 18px; }
+  .fpro { font-size: .72rem; color: var(--gold);     margin-top: 6px; }
+
+  /* Image preview in product form */
+  #pImgPrev { width: 100%; max-height: 180px; object-fit: cover; border: 1px solid var(--navy-border); display: none; margin-top: 10px; }
+
+  /* Product form modal */
+  #prodFormWrap { display: none; position: fixed; inset: 0; z-index: 9500; background: rgba(5,13,26,.94); align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(8px); }
+  #prodFormWrap.open { display: flex; }
+  .prod-form-box {
+    background: var(--navy-card); border: 1px solid rgba(201,168,76,.2);
+    padding: 32px 28px; width: 100%; max-width: 540px;
+    max-height: 92vh; overflow-y: auto; position: relative;
+    animation: modalIn .4s var(--ease-out);
+  }
+  .prod-form-title { font-family: var(--font-gt); font-size: 1.2rem; color: var(--cream); margin-bottom: 24px; letter-spacing: .08em; text-transform: uppercase; }
+
+  /* Invisible secret corner */
+  #secretCorner {
+    position: fixed; bottom: 0; left: 0;
+    width: 50px; height: 50px; z-index: 8000;
+    background: transparent; cursor: default;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     KEYFRAMES
+  ═══════════════════════════════════════════════════════ */
+  @keyframes fadeUp      { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn      { from { opacity:0; } to { opacity:1; } }
+  @keyframes pulse       { 0%,100% { opacity:1; } 50% { opacity:.5; } }
+  @keyframes loaderSlide { 0% { transform:translateX(-100%); } 50% { transform:translateX(0); } 100% { transform:translateX(100%); } }
+  @keyframes toastIn     { from { opacity:0; transform:translateX(18px); } to { opacity:1; transform:translateX(0); } }
+  @keyframes toastOut    { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(18px); } }
+  @keyframes modalIn     { from { opacity:0; transform:scale(.96) translateY(14px); } to { opacity:1; transform:scale(1) translateY(0); } }
+  @keyframes marqueeRoll { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+  @keyframes scrollPulse { 0%,100% { opacity:.25; } 50% { opacity:.8; } }
+
+  /* ═══════════════════════════════════════════════════════
+     RESPONSIVE
+  ═══════════════════════════════════════════════════════ */
+  @media (max-width: 960px) {
+    .prod-modal { grid-template-columns: 1fr; max-height: 95vh; }
+    .prod-modal-img { max-height: 260px; }
+    .prod-modal-img img { object-position: top; }
+    .about-wrap { grid-template-columns: 1fr; }
+    .about-visual { display: none; }
+    .foot-grid { grid-template-columns: 1fr 1fr; gap: 36px; }
+    #adminPanel.open { flex-direction: column; overflow: hidden; }
+    .adm-sidebar { width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; padding: 6px 8px; gap: 2px; overflow-x: auto; overflow-y: hidden; border-right: none; border-bottom: 1px solid var(--navy-border); }
+    .adm-logo, .adm-role-badge { display: none; }
+    .adm-nav { flex: 0 1 auto; padding: 10px 12px; border-left: none; border-bottom: 2px solid transparent; min-height: 40px; font-size: .5rem; }
+    .adm-nav.active { border-left: none; border-bottom-color: var(--gold); }
+    .adm-foot { padding: 6px 10px; display: flex; align-items: center; gap: 10px; width: 100%; border-top: 1px solid var(--navy-border); }
+    .adm-user { display: none; }
+    .btn-logout { width: auto; padding: 8px 14px; }
+    .adm-main { padding: 18px 12px; flex: 1; overflow-y: auto; }
+    .adm-card { max-width: 100%; }
+    .adm-head h2 { font-size: 1.1rem; }
+  }
+  @media (max-width: 680px) {
+    .nav-search { display: none; }
+    .nav-select { max-width: 90px; font-size: .62rem; padding: 7px 8px; }
+    .foot-grid { grid-template-columns: 1fr; gap: 32px; }
+    .hero-ctas { flex-direction: column; align-items: center; width: 100%; }
+    .hero-ctas .btn-gold, .hero-ctas .btn-ghost { width: 100%; max-width: 280px; }
+    .card-foot { flex-direction: column; align-items: flex-start; }
+    .gate-box  { padding: 36px 20px; }
+    .prod-modal-body { padding: 24px 20px; }
+    .adm-row { flex-wrap: wrap; }
+    .adm-btns { width: 100%; justify-content: flex-end; }
+    .productsGrid { grid-template-columns: 1fr 1fr; }
+    #productsGrid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 2px; }
+    .card-name { font-size: .85rem; }
+    .card-price { font-size: .9rem; }
+    .cbtn { min-width: 100px; padding: 10px 16px; }
+  }
+  @media (max-width: 400px) {
+    #productsGrid { grid-template-columns: 1fr; }
+    .nav-logo { font-size: 1.1rem; }
+  }
+  </style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loadingOverlay">
+  <div class="loader-logo">Zerella</div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+</div>
+
+<!-- TOASTS -->
+<div id="toastWrap"></div>
+
+<!-- SECRET CORNER: tap 3× bottom-left to open admin -->
+<div id="secretCorner"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PUBLIC SITE
+═══════════════════════════════════════════════════════ -->
+<div id="publicSite" style="display:none;">
+
+  <!-- NAVBAR -->
+  <nav id="navbar">
+    <a href="#" class="nav-left" id="navLogoLink">
+      <img id="siteLogoImg" src="" alt="Zerella Logo"/>
+      <span class="nav-logo">Zerella</span>
+    </a>
+    <div class="nav-right">
+      <div class="nav-search">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="searchInput" placeholder="Search…" autocomplete="off"/>
+      </div>
+      <select class="nav-select" id="filterSelect">
+        <option value="">All</option>
+        <option value="perfume">Perfume</option>
+        <option value="car">Car</option>
+        <option value="room">Room</option>
+      </select>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="hero-thin-line"></div>
+      <p class="hero-eyebrow">Maison de Parfum · Since 2024</p>
+      <h1 id="heroHeadline">The Art of <em>Rare Essence</em></h1>
+      <p id="heroBanner">Handcrafted luxury fragrances born from the world's most precious botanicals. Each bottle — a story of timeless elegance.</p>
+      <div class="hero-ctas">
+        <a href="#products" class="btn-gold">Explore Collection →</a>
+        <a href="#about"    class="btn-ghost">Our Story</a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-strip">
+    <div class="marquee-track" id="marqueeTrack"></div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <section id="products">
+    <div class="section-head">
+      <p class="section-tag">The Collection</p>
+      <h2 class="section-title">Our <em>Signature</em> Scents</h2>
+      <div class="section-line"></div>
+    </div>
+    <div id="productsGrid">
+      <div class="empty-state"><div class="empty-icon">✦</div><p>Loading collection…</p></div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="feat-grid">
+      <div class="feat-item"><div class="feat-icon">🌿</div><div class="feat-title">Natural Ingredients</div><div class="feat-desc">Sourced from the world's most prestigious botanical gardens.</div></div>
+      <div class="feat-item"><div class="feat-icon">🔬</div><div class="feat-title">Master Perfumers</div><div class="feat-desc">Crafted by artisans with decades of olfactory mastery.</div></div>
+      <div class="feat-item"><div class="feat-icon">🚗</div><div class="feat-title">Car &amp; Room</div><div class="feat-desc">Curated fragrances for your car, living room and beyond.</div></div>
+      <div class="feat-item"><div class="feat-icon">✈️</div><div class="feat-title">Worldwide Delivery</div><div class="feat-desc">Discreet, insured shipping to over 120 countries.</div></div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="about-wrap">
+      <div class="about-visual">
+        <div class="about-box">Z</div>
+        <div class="about-stat">
+          <span class="about-stat-num">30+</span>
+          <span class="about-stat-lbl">Rare Scents</span>
+        </div>
+      </div>
+      <div class="about-text">
+        <p class="section-tag">Our Philosophy</p>
+        <h2>Where <em>Craft</em> Meets Obsession</h2>
+        <p>Zerella was founded on one uncompromising belief — that fragrance is the highest form of personal expression. Every formula begins with a journey: sourcing raw materials that most perfumers will never encounter.</p>
+        <p>From the misty valleys of Bulgarian rose fields to the ancient oud forests of Southeast Asia, we pursue nothing less than perfection in every drop.</p>
+        <div style="margin-top:28px;"><a href="#products" class="btn-gold">Shop Now →</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">Zerella</div>
+        <p class="foot-desc">Maison de Parfum — luxury fragrances crafted for those who believe in the power of scent.</p>
+      </div>
+      <div class="foot-col">
+        <p class="foot-col-title">Collection</p>
+        <ul>
+          <li onclick="scrollToProducts()">All Fragrances</li>
+          <li onclick="filterCat('perfume')">Perfume</li>
+          <li onclick="filterCat('car')">Car Fragrance</li>
+          <li onclick="filterCat('room')">Room Fragrance</li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <p class="foot-col-title">Information</p>
+        <ul>
+          <li>About Zerella</li>
+          <li>Shipping Policy</li>
+          <li>Returns</li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <!-- Triple-click triggers admin — looks normal to visitors -->
+      <p id="footCopyright" style="cursor:default;" title="">© 2024 Zerella. All rights reserved.</p>
+      <p>Crafted with obsession for excellence.</p>
+    </div>
+  </footer>
+</div><!-- /publicSite -->
+
+
+<!-- ═══════════════════════════════════════════════════════
+     PRODUCT DETAIL MODAL
+═══════════════════════════════════════════════════════ -->
+<div id="productModal" class="overlay-bg">
+  <div class="prod-modal">
+    <div class="prod-modal-img"><img id="mImg" src="" alt="Fragrance"/></div>
+    <div class="prod-modal-body">
+      <p  class="prod-modal-cat"   id="mCat"></p>
+      <h2 class="prod-modal-name"  id="mName"></h2>
+      <p  class="prod-modal-price" id="mPrice"></p>
+      <div class="prod-modal-hr"></div>
+      <p  class="prod-modal-desc"  id="mDesc"></p>
+      <div class="prod-modal-hr" id="mHowtoHr" style="display:none;"></div>
+      <div id="mHowtoSection" style="display:none;">
+        <p class="prod-modal-howto-label">How to Use</p>
+        <p class="prod-modal-howto" id="mHowto"></p>
+      </div>
+      <div class="prod-modal-hr"></div>
+      <div class="prod-modal-actions">
+        <button class="btn-gold"  id="mBuyBtn">Order via WhatsApp →</button>
+        <button class="btn-ghost" id="mShareBtn">↗ Share</button>
+      </div>
+    </div>
+    <button class="modal-x" id="closeModal">✕</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     ADMIN OVERLAY
+═══════════════════════════════════════════════════════ -->
+<div id="adminOverlay">
+
+  <!-- Login Gate -->
+  <div id="adminGate">
+    <div class="gate-box">
+      <div class="gate-logo">Zerella</div>
+      <p class="gate-sub">Admin Portal</p>
+      <div class="fg">
+        <label class="fl">Username</label>
+        <input class="fi" type="text" id="gUser" placeholder="zerella.in" autocomplete="off"/>
+      </div>
+      <div class="fg">
+        <label class="fl">Password</label>
+        <input class="fi" type="password" id="gPass" placeholder="••••••••"/>
+      </div>
+      <div id="gErr" class="ferr"></div>
+      <div class="brow">
+        <button class="btn-gold" id="gLoginBtn">Access Panel</button>
+      </div>
+      <span class="gate-back" id="gBackBtn">← Back to Store</span>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="adminPanel">
+    <aside class="adm-sidebar">
+      <div class="adm-logo">
+        <div class="adm-logo-name">Zerella</div>
+        <div class="adm-logo-sub">Admin Panel</div>
+      </div>
+      <div class="adm-role-badge admin" id="roleBadge">Admin</div>
+      <button class="adm-nav active"  data-tab="products"><span>📦</span> Products</button>
+      <button class="adm-nav"         data-tab="settings"><span>⚙️</span> Settings</button>
+      <button class="adm-nav sa-only" data-tab="accounts"><span>👤</span> Accounts</button>
+      <button class="adm-nav sa-only" data-tab="danger">  <span>⚠️</span> Danger</button>
+      <div class="adm-foot">
+        <span class="adm-user" id="admUserLbl"></span>
+        <button class="btn-logout" id="admLogoutBtn">Sign Out</button>
+      </div>
+    </aside>
+
+    <main class="adm-main">
+
+      <!-- Products Tab -->
+      <div id="tab-products" class="adm-tab active">
+        <div class="adm-head">
+          <h2>Products</h2>
+          <button class="btn-gold" id="addProdBtn" style="flex:0;padding:12px 22px;font-size:.52rem;">+ Add Product</button>
+        </div>
+        <div id="admProdList"><p class="adm-empty">Loading…</p></div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div id="tab-settings" class="adm-tab">
+        <div class="adm-head"><h2>Site Settings</h2></div>
+
+        <!-- Logo -->
+        <div class="adm-card">
+          <h3>🖼️ Site Logo</h3>
+          <p style="font-size:.76rem;color:var(--gray);line-height:1.75;margin-bottom:14px;">
+            Upload any image (PNG, JPG, SVG). It will be automatically resized to fit the navbar.<br/>
+            <strong style="color:var(--gold);">No size restriction</strong> — upload any size and it scales perfectly.
+          </p>
+          <div class="fg">
+            <label class="fl">Choose Logo File</label>
+            <input class="fi" type="file" id="logoFile" accept="image/*" style="padding:10px;"/>
+            <img id="logoPreviewAdmin" alt="Logo Preview"/>
+          </div>
+          <div class="logo-actions">
+            <button class="btn-gold" id="saveLogoBtn" style="flex:0;padding:12px 22px;font-size:.52rem;">Upload &amp; Save</button>
+            <button class="btn-ghost" id="removeLogoBtn" style="flex:0;padding:12px 22px;font-size:.52rem;">Remove Logo</button>
+          </div>
+          <div id="logoMsg" class="fok"></div>
+          <div id="logoErr" class="ferr"></div>
+          <div id="logoPro" class="fpro"></div>
+        </div>
+
+        <!-- Homepage Content -->
+        <div class="adm-card">
+          <h3>🏠 Homepage Content</h3>
+          <div class="fg">
+            <label class="fl">Hero Headline</label>
+            <input class="fi" type="text" id="sHero" placeholder="The Art of Rare Essence"/>
+          </div>
+          <div class="fg">
+            <label class="fl">Hero Sub-text</label>
+            <textarea class="fi fi-ta" id="sBanner" placeholder="Handcrafted luxury fragrances…"></textarea>
+          </div>
+        </div>
+
+        <!-- WhatsApp -->
+        <div class="adm-card">
+          <h3>📲 WhatsApp Number</h3>
+          <p class="wa-note">
+            International format without the + sign.<br/>
+            Example: <strong>918075609412</strong> &nbsp;(91 = India)
+          </p>
+          <div class="fg">
+            <label class="fl">WhatsApp Number</label>
+            <input class="fi" type="text" id="sWA" placeholder="918075609412"/>
+          </div>
+        </div>
+
+        <!-- Order Message Format -->
+        <div class="adm-card">
+          <h3>💬 Order Message Format</h3>
+          <p style="font-size:.76rem;color:var(--gray);line-height:1.75;margin-bottom:14px;">
+            Customize the WhatsApp order message. Use these placeholders:<br/>
+            <code style="color:var(--gold);">{name}</code> — product name &nbsp;·&nbsp;
+            <code style="color:var(--gold);">{price}</code> — price &nbsp;·&nbsp;
+            <code style="color:var(--gold);">{category}</code> — category
+          </p>
+          <div class="fg">
+            <label class="fl">Order Message Template</label>
+            <textarea class="fi fi-ta" id="sOrderMsg" style="min-height:130px;" placeholder="Hello Zerella, I want to order:&#10;&#10;Product: {name}&#10;Price: ₹{price}&#10;Category: {category}&#10;&#10;Please confirm availability."></textarea>
+          </div>
+        </div>
+
+        <div id="setOk"  class="fok"></div>
+        <div id="setErr" class="ferr"></div>
+        <div class="brow" style="max-width:680px;">
+          <button class="btn-gold" id="saveSetBtn">Save All Settings</button>
+        </div>
+      </div>
+
+      <!-- Accounts Tab -->
+      <div id="tab-accounts" class="adm-tab">
+        <div class="adm-head"><h2>Admin Accounts</h2></div>
+        <div class="adm-card" style="max-width:100%;">
+          <h3>👤 Registered Admin Users</h3>
+          <p style="font-size:.76rem;color:var(--gray);margin-bottom:22px;line-height:1.75;">
+            Credentials are built into the site HTML. Authentication is 100% local — no Firebase Auth is used.
+          </p>
+          <table class="acc-table">
+            <thead><tr><th>Username</th><th>Role</th><th>Permissions</th></tr></thead>
+            <tbody id="accTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div id="tab-danger" class="adm-tab">
+        <div class="adm-head"><h2>Danger Zone</h2></div>
+        <div class="adm-card" style="max-width:100%;border-color:rgba(224,80,80,.3);">
+          <h3 style="color:var(--error);">⚠️ Destructive Actions</h3>
+          <p style="font-size:.78rem;color:var(--gray);line-height:1.75;margin-bottom:24px;">Super Admin only. These actions are permanent.</p>
+          <div style="display:flex;flex-direction:column;gap:14px;max-width:500px;">
+            <div style="background:var(--navy-soft);border:1px solid rgba(224,80,80,.2);padding:20px;">
+              <p style="font-size:.8rem;color:var(--cream);margin-bottom:6px;font-weight:500;">Delete All Products</p>
+              <p style="font-size:.74rem;color:var(--gray);margin-bottom:14px;">Permanently removes every product from Firestore.</p>
+              <button class="btn-gold" id="deleteAllBtn" style="background:linear-gradient(135deg,var(--error),#c03030);flex:0;padding:12px 24px;font-size:.52rem;">Delete All Products</button>
+            </div>
+            <div style="background:var(--navy-soft);border:1px solid rgba(224,80,80,.2);padding:20px;">
+              <p style="font-size:.8rem;color:var(--cream);margin-bottom:6px;font-weight:500;">Reset All Settings</p>
+              <p style="font-size:.74rem;color:var(--gray);margin-bottom:14px;">Clears hero text, banner, WhatsApp, logo and order message.</p>
+              <button class="btn-gold" id="resetSetBtn" style="background:linear-gradient(135deg,var(--error),#c03030);flex:0;padding:12px 24px;font-size:.52rem;">Reset Settings</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div><!-- /adminOverlay -->
+
+
+<!-- Product Add/Edit Form Modal -->
+<div id="prodFormWrap">
+  <div class="prod-form-box">
+    <button class="modal-x" id="closeProdForm">✕</button>
+    <h2 class="prod-form-title" id="prodFormTitle">Add New Product</h2>
+    <div class="fg"><label class="fl">Product Name *</label><input class="fi" type="text" id="pName" placeholder="e.g. Oud Noir Elixir"/></div>
+    <div class="fg"><label class="fl">Price (₹) *</label><input class="fi" type="number" id="pPrice" placeholder="e.g. 5999"/></div>
+    <div class="fg">
+      <label class="fl">Category</label>
+      <select class="fi fi-sel" id="pCat">
+        <option value="perfume">Perfume</option>
+        <option value="car">Car</option>
+        <option value="room">Room</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">Description</label><textarea class="fi fi-ta" id="pDesc" placeholder="Notes, character, occasion…"></textarea></div>
+    <div class="fg"><label class="fl">How to Use</label><textarea class="fi fi-ta" id="pHowto" placeholder="e.g. Apply 2-3 sprays on pulse points. Best used on clean skin…"></textarea></div>
+    <div class="fg">
+      <label class="fl">Product Image</label>
+      <input class="fi" type="file" id="pImg" accept="image/*" style="padding:10px;"/>
+      <img id="pImgPrev" alt="Preview"/>
+    </div>
+    <div id="pErr" class="ferr"></div>
+    <div id="pPro" class="fpro"></div>
+    <div class="brow" style="margin-top:24px;">
+      <button class="btn-gold"  id="pSaveBtn">Save Product</button>
+      <button class="btn-ghost" id="pCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     FIREBASE + APP LOGIC
+═══════════════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore, collection, doc,
+  getDocs, getDoc, addDoc, updateDoc, deleteDoc, setDoc,
+  query, orderBy, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+  getStorage, ref as sRef,
+  uploadBytesResumable, getDownloadURL, deleteObject
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+/* ── Firebase Config ── */
+const FB_CONFIG = {
+  apiKey:            "AIzaSyB3jATcvT5bEVrwZIfZXValj6NFECozwGI",
+  authDomain:        "zerella-e6d7d.firebaseapp.com",
+  projectId:         "zerella-e6d7d",
+  storageBucket:     "zerella-e6d7d.firebasestorage.app",
+  messagingSenderId: "502165503391",
+  appId:             "1:502165503391:web:6ba149d2bf58df776e51aa",
+  measurementId:     "G-D2XBB5CQXC"
+};
+
+/* ── Admin Accounts (local only, no Firebase Auth) ──
+   Account 1 → Admin       : zerella.in / anzilsahalnashihaneeb@786
+   Account 2 → Super Admin : zerella.in / zerella 2026
+*/
+const ACCOUNTS = [
+  { username:"zerella.in", password:"anzilsahalnashihaneeb@786", role:"admin",      label:"Admin Account",  perms:"Products CRUD · Settings · Logo" },
+  { username:"zerella.in", password:"zerella 2026",              role:"superadmin", label:"Super Admin",    perms:"Full access · Accounts · Danger Zone" }
+];
+
+/* Default order message template */
+const DEFAULT_ORDER_MSG =
+`Hello Zerella, I want to order this:
+
+Product Name: {name}
+Price: ₹{price}
+Category: {category}
+
+Please confirm availability.`;
+
+/* ── Init ── */
+const fbApp   = initializeApp(FB_CONFIG);
+const db      = getFirestore(fbApp);
+const storage = getStorage(fbApp);
+
+/* ── State ── */
+let allProducts   = [];
+let adminProducts = [];
+let editingId     = null;
+let cachedWANum   = "";
+let cachedOrderMsg = "";
+let currentRole   = null;
+let currentAcct   = null;
+let siteSettings  = { heroText:"", bannerText:"", whatsappNumber:"", logoUrl:"", orderMsgTemplate:"" };
+
+/* ── Utilities ── */
+function toast(msg, type="info") {
+  const el = document.createElement("div");
+  el.className = `toast ${type}`; el.textContent = msg;
+  document.getElementById("toastWrap").appendChild(el);
+  setTimeout(() => { el.classList.add("out"); el.addEventListener("animationend",()=>el.remove(),{once:true}); }, 3500);
+}
+function esc(s) {
+  return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function hideLoader() { document.getElementById("loadingOverlay").classList.add("hidden"); }
+window.scrollToProducts = () => document.getElementById("products")?.scrollIntoView({behavior:"smooth"});
+window.filterCat = cat => {
+  const sel = document.getElementById("filterSelect");
+  if(sel){ sel.value=cat; applyFilters(); } window.scrollToProducts();
+};
+
+/* ── Marquee ── */
+(function(){
+  const items = ["Handcrafted Essences","Rare Botanicals","Car Fragrances","Room Diffusers","Timeless Scents","Maison Zerella","Natural Ingredients","Master Perfumers"];
+  document.getElementById("marqueeTrack").innerHTML =
+    [...items,...items].map(t=>`<div class="marquee-item"><span class="marquee-gem">✦</span>${t}</div>`).join("");
+})();
+
+/* ── Navbar scroll ── */
+window.addEventListener("scroll",()=>{
+  document.getElementById("navbar").classList.toggle("scrolled", window.scrollY>60);
+},{passive:true});
+
+/* ════════════════════════════════════════════════
+   SECRET ADMIN TRIGGERS (5 hidden ways)
+   1. Triple-click navbar logo
+   2. Triple-click footer copyright
+   3. Triple-tap invisible bottom-left corner
+   4. Keyboard: type Z → E → R
+   5. URL: add #zerella-admin
+════════════════════════════════════════════════ */
+function openAdminRoute(){ window.location.hash = "#zerella-admin"; }
+
+function makeMultiTap(el, count, cb) {
+  let clicks=0, timer=null;
+  el.addEventListener("click", e => {
+    e.preventDefault(); clicks++;
+    clearTimeout(timer);
+    if(clicks>=count){ clicks=0; cb(); return; }
+    timer = setTimeout(()=>{ clicks=0; }, 600);
+  });
+}
+makeMultiTap(document.getElementById("navLogoLink"),    3, openAdminRoute);
+makeMultiTap(document.getElementById("footCopyright"),  3, openAdminRoute);
+makeMultiTap(document.getElementById("secretCorner"),   3, openAdminRoute);
+(function(){
+  const SEQ=["z","e","r"]; let pos=0, timer=null;
+  document.addEventListener("keydown", e => {
+    if(e.key.toLowerCase()===SEQ[pos]){
+      pos++; clearTimeout(timer);
+      if(pos===SEQ.length){ pos=0; openAdminRoute(); return; }
+      timer = setTimeout(()=>{ pos=0; }, 1200);
+    } else { pos=0; }
+  });
+})();
+
+/* ── Hash Router ── */
+function router(){
+  if(window.location.hash==="#zerella-admin"){
+    document.getElementById("publicSite").style.display="none";
+    document.getElementById("adminOverlay").classList.add("open");
+    if(currentRole) showAdminPanel(); else showAdminGate();
+  } else {
+    document.getElementById("adminOverlay").classList.remove("open");
+    document.getElementById("publicSite").style.display="block";
+    bootPublic();
+  }
+}
+window.addEventListener("hashchange", router);
+
+/* ── Public Boot ── */
+async function bootPublic(){
+  try {
+    await Promise.all([fetchSettings(), fetchProducts()]);
+    applySettings(); renderProducts(allProducts);
+  } catch(e){ console.error("Boot:",e); toast("Could not load data.","error"); }
+  finally { hideLoader(); }
+}
+
+async function fetchSettings(){
+  try {
+    const snap = await getDoc(doc(db,"settings","config"));
+    if(snap.exists()){
+      const d = snap.data();
+      siteSettings.heroText        = d.heroText        || "";
+      siteSettings.bannerText      = d.bannerText       || "";
+      siteSettings.whatsappNumber  = d.whatsappNumber   || "";
+      siteSettings.logoUrl         = d.logoUrl          || "";
+      siteSettings.orderMsgTemplate= d.orderMsgTemplate || "";
+      cachedWANum     = siteSettings.whatsappNumber;
+      cachedOrderMsg  = siteSettings.orderMsgTemplate;
+    }
+  } catch(e){ console.warn("Settings:",e); }
+}
+
+async function fetchProducts(){
+  try {
+    const snap = await getDocs(query(collection(db,"products"),orderBy("createdAt","desc")));
+    allProducts = snap.docs.map(d=>({id:d.id,...d.data()}));
+  } catch(_){
+    try {
+      const snap2 = await getDocs(collection(db,"products"));
+      allProducts = snap2.docs.map(d=>({id:d.id,...d.data()}));
+    } catch(e2){ allProducts=[]; }
+  }
+}
+
+function applySettings(){
+  if(siteSettings.heroText)   document.getElementById("heroHeadline").textContent = siteSettings.heroText;
+  if(siteSettings.bannerText) document.getElementById("heroBanner").textContent   = siteSettings.bannerText;
+  const logoImg = document.getElementById("siteLogoImg");
+  if(siteSettings.logoUrl){ logoImg.src=siteSettings.logoUrl; logoImg.style.display="block"; }
+  else { logoImg.style.display="none"; }
+}
+
+/* ── Render Products ── */
+function renderProducts(list){
+  const grid = document.getElementById("productsGrid");
+  if(!grid) return;
+  if(!list?.length){
+    grid.innerHTML=`<div class="empty-state"><div class="empty-icon">✦</div><p>No products in this collection yet.</p></div>`;
+    return;
+  }
+  grid.innerHTML = list.map(p => `
+    <article class="product-card" data-id="${p.id}">
+      <div class="card-img">
+        <img src="${p.imageUrl||"https://placehold.co/400x533/0d1e38/c9a84c?text=Zerella"}" alt="${esc(p.name)}" loading="lazy"/>
+        <span class="card-badge">${esc(p.category||"Perfume")}</span>
+        <div class="card-overlay">
+          <button class="cbtn cbtn-primary"   data-action="buy"   data-id="${p.id}">Buy Now</button>
+          <button class="cbtn cbtn-secondary" data-action="view"  data-id="${p.id}">View Details</button>
+          <button class="cbtn cbtn-secondary" data-action="share" data-id="${p.id}">↗ Share</button>
+        </div>
+      </div>
+      <div class="card-info">
+        <p class="card-cat">${esc(p.category||"Perfume")}</p>
+        <h3 class="card-name">${esc(p.name)}</h3>
+        <p class="card-desc">${esc(p.description||"")}</p>
+        ${p.howToUse ? `
+        <div class="card-howto">
+          <p class="card-howto-label">How to Use</p>
+          ${esc(p.howToUse)}
+        </div>` : ""}
+        <div class="card-foot">
+          <span class="card-price">₹${Number(p.price).toLocaleString("en-IN")}</span>
+          <button class="card-buy-sm" data-action="buy" data-id="${p.id}">Order →</button>
+        </div>
+      </div>
+    </article>
+  `).join("");
+
+  grid.onclick = null;
+  grid.onclick = e => {
+    const btn  = e.target.closest("[data-action]");
+    const card = e.target.closest(".product-card");
+    if(btn){ e.stopPropagation(); const{action,id}=btn.dataset; if(action==="buy")handleBuy(id); if(action==="view")openModal(id); if(action==="share")handleShare(id); }
+    else if(card){ openModal(card.dataset.id); }
+  };
+}
+
+/* ── Filters ── */
+function applyFilters(){
+  const q   = (document.getElementById("searchInput")?.value||"").toLowerCase().trim();
+  const cat = (document.getElementById("filterSelect")?.value||"").toLowerCase();
+  let out = allProducts;
+  if(cat) out=out.filter(p=>(p.category||"").toLowerCase()===cat);
+  if(q)   out=out.filter(p=>(p.name||"").toLowerCase().includes(q)||(p.description||"").toLowerCase().includes(q));
+  renderProducts(out);
+}
+document.getElementById("searchInput")?.addEventListener("input",  applyFilters);
+document.getElementById("filterSelect")?.addEventListener("change", applyFilters);
+
+/* ── WhatsApp Order ── */
+async function getLiveWANum(){
+  try { const snap=await getDoc(doc(db,"settings","config")); if(snap.exists()){ cachedWANum=snap.data().whatsappNumber||""; cachedOrderMsg=snap.data().orderMsgTemplate||""; } } catch(_){}
+  return cachedWANum;
+}
+
+function buildOrderMsg(p){
+  const template = cachedOrderMsg || DEFAULT_ORDER_MSG;
+  return template
+    .replace(/{name}/g,     p.name)
+    .replace(/{price}/g,    p.price)
+    .replace(/{category}/g, p.category||"Perfume");
+}
+
+async function handleBuy(id){
+  const p = allProducts.find(x=>x.id===id); if(!p) return;
+  const num = await getLiveWANum();
+  if(!num){ toast("WhatsApp number not configured.","error"); return; }
+  window.open(`https://wa.me/${num.replace(/\D/g,"")}?text=${encodeURIComponent(buildOrderMsg(p))}`, "_blank");
+}
+
+async function handleShare(id){
+  const p = allProducts.find(x=>x.id===id); if(!p) return;
+  const url = window.location.href.split("#")[0];
+  const msg = `Check out this fragrance from Zerella:\n\n${p.name}\nPrice: ₹${p.price}\n\n${url}`;
+  if(navigator.share){ try{ await navigator.share({title:`Zerella — ${p.name}`,text:msg,url}); return; }catch(_){} }
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,"_blank");
+}
+
+/* ── Product Detail Modal ── */
+function openModal(id){
+  const p = allProducts.find(x=>x.id===id); if(!p) return;
+  document.getElementById("mImg").src           = p.imageUrl||"https://placehold.co/400x533/0d1e38/c9a84c?text=Zerella";
+  document.getElementById("mCat").textContent   = p.category||"Perfume";
+  document.getElementById("mName").textContent  = p.name;
+  document.getElementById("mPrice").textContent = `₹${Number(p.price).toLocaleString("en-IN")}`;
+  document.getElementById("mDesc").textContent  = p.description||"No description provided.";
+  // How-to-use section
+  const howtoSection = document.getElementById("mHowtoSection");
+  const howtoHr      = document.getElementById("mHowtoHr");
+  if(p.howToUse){ document.getElementById("mHowto").textContent=p.howToUse; howtoSection.style.display="block"; howtoHr.style.display="block"; }
+  else { howtoSection.style.display="none"; howtoHr.style.display="none"; }
+  document.getElementById("mBuyBtn").onclick   = ()=>handleBuy(id);
+  document.getElementById("mShareBtn").onclick = ()=>handleShare(id);
+  document.getElementById("productModal").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closeModal(){ document.getElementById("productModal").classList.remove("open"); document.body.style.overflow=""; }
+document.getElementById("closeModal").addEventListener("click", closeModal);
+document.getElementById("productModal").addEventListener("click",e=>{ if(e.target===e.currentTarget)closeModal(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape")closeModal(); });
+
+/* ════════════════════════════════════════════════
+   ADMIN GATE
+════════════════════════════════════════════════ */
+function showAdminGate(){
+  document.getElementById("adminGate").classList.add("open");
+  document.getElementById("adminPanel").classList.remove("open");
+}
+
+document.getElementById("gLoginBtn").addEventListener("click", doAdminLogin);
+document.getElementById("gPass").addEventListener("keydown", e=>{ if(e.key==="Enter")doAdminLogin(); });
+
+function doAdminLogin(){
+  const user  = document.getElementById("gUser").value.trim();
+  const pass  = document.getElementById("gPass").value;
+  const errEl = document.getElementById("gErr");
+  errEl.textContent="";
+  if(!user||!pass){ errEl.textContent="Please fill in both fields."; return; }
+  const match = ACCOUNTS
+    .filter(a=>a.username===user && a.password===pass)
+    .sort((a,b)=>a.role==="superadmin"?1:-1)
+    .pop();
+  if(!match){ errEl.textContent="Incorrect username or password."; toast("Access denied.","error"); return; }
+  currentAcct=match; currentRole=match.role;
+  showAdminPanel();
+}
+document.getElementById("gBackBtn").addEventListener("click",()=>{ window.location.hash=""; });
+
+/* ════════════════════════════════════════════════
+   ADMIN PANEL
+════════════════════════════════════════════════ */
+async function showAdminPanel(){
+  document.getElementById("adminGate").classList.remove("open");
+  document.getElementById("adminPanel").classList.add("open");
+  const badge = document.getElementById("roleBadge");
+  badge.textContent = currentRole==="superadmin"?"⭐ Super Admin":"Admin";
+  badge.className   = `adm-role-badge ${currentRole}`;
+  document.getElementById("admUserLbl").textContent = currentAcct.label;
+  document.querySelectorAll(".sa-only").forEach(el=>{ el.style.display=currentRole==="superadmin"?"flex":"none"; });
+  await Promise.all([admFetchProducts(), admFetchSettings()]);
+  admShowTab("products");
+  if(currentRole==="superadmin") buildAccountsTable();
+}
+
+function admShowTab(name){
+  document.querySelectorAll(".adm-nav").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));
+  document.querySelectorAll(".adm-tab").forEach(t=>t.classList.toggle("active",t.id===`tab-${name}`));
+}
+document.querySelectorAll(".adm-nav").forEach(btn=>btn.addEventListener("click",()=>admShowTab(btn.dataset.tab)));
+document.getElementById("admLogoutBtn").addEventListener("click",()=>{
+  currentRole=null; currentAcct=null;
+  document.getElementById("gUser").value=""; document.getElementById("gPass").value=""; document.getElementById("gErr").textContent="";
+  window.location.hash=""; toast("Signed out.","success");
+});
+
+/* Accounts table */
+function buildAccountsTable(){
+  document.getElementById("accTbody").innerHTML = ACCOUNTS.map(a=>`
+    <tr>
+      <td>${esc(a.username)}</td>
+      <td><span class="role-pill ${a.role}">${a.role==="superadmin"?"⭐ Super Admin":"Admin"}</span></td>
+      <td>${esc(a.perms)}</td>
+    </tr>`).join("");
+}
+
+/* ── Admin: Products CRUD ── */
+async function admFetchProducts(){
+  document.getElementById("admProdList").innerHTML=`<p class="adm-empty">Loading…</p>`;
+  try {
+    const snap = await getDocs(query(collection(db,"products"),orderBy("createdAt","desc")));
+    adminProducts = snap.docs.map(d=>({id:d.id,...d.data()}));
+  } catch(_){
+    try { const snap2=await getDocs(collection(db,"products")); adminProducts=snap2.docs.map(d=>({id:d.id,...d.data()})); }
+    catch(e){ adminProducts=[]; }
+  }
+  renderAdminProducts();
+}
+
+function renderAdminProducts(){
+  const list = document.getElementById("admProdList");
+  if(!adminProducts.length){ list.innerHTML=`<p class="adm-empty">No products yet. Add your first product.</p>`; return; }
+  list.innerHTML = adminProducts.map(p=>`
+    <div class="adm-row">
+      <img class="adm-thumb" src="${p.imageUrl||"https://placehold.co/48x48/0d1e38/c9a84c?text=Z"}" alt="${esc(p.name)}"/>
+      <div class="adm-pinfo">
+        <strong>${esc(p.name)}</strong>
+        <span>₹${Number(p.price).toLocaleString("en-IN")} · ${esc(p.category||"Perfume")}</span>
+      </div>
+      <div class="adm-btns">
+        <button class="adb adb-e" data-pa="edit" data-id="${p.id}">Edit</button>
+        <button class="adb adb-d" data-pa="del"  data-id="${p.id}">Delete</button>
+      </div>
+    </div>`).join("");
+  list.onclick=null;
+  list.onclick=e=>{ const btn=e.target.closest("[data-pa]"); if(!btn)return; if(btn.dataset.pa==="edit")openProdForm(btn.dataset.id); if(btn.dataset.pa==="del")deleteProd(btn.dataset.id); };
+}
+
+document.getElementById("addProdBtn").addEventListener("click",()=>openProdForm(null));
+
+function openProdForm(id){
+  editingId=id; const p=id?adminProducts.find(x=>x.id===id):null;
+  document.getElementById("prodFormTitle").textContent = p?"Edit Product":"Add New Product";
+  document.getElementById("pName").value   = p?.name        || "";
+  document.getElementById("pPrice").value  = p?.price       || "";
+  document.getElementById("pCat").value    = p?.category    || "perfume";
+  document.getElementById("pDesc").value   = p?.description || "";
+  document.getElementById("pHowto").value  = p?.howToUse    || "";
+  document.getElementById("pImg").value    = "";
+  document.getElementById("pErr").textContent=""; document.getElementById("pPro").textContent="";
+  const prev=document.getElementById("pImgPrev");
+  if(p?.imageUrl){ prev.src=p.imageUrl; prev.style.display="block"; } else { prev.style.display="none"; }
+  document.getElementById("prodFormWrap").classList.add("open");
+}
+
+document.getElementById("pImg").addEventListener("change",()=>{
+  const file=document.getElementById("pImg").files[0]; if(!file)return;
+  const r=new FileReader(); r.onload=e=>{ const prev=document.getElementById("pImgPrev"); prev.src=e.target.result; prev.style.display="block"; }; r.readAsDataURL(file);
+});
+
+function closeProdForm(){ document.getElementById("prodFormWrap").classList.remove("open"); }
+document.getElementById("closeProdForm").addEventListener("click",closeProdForm);
+document.getElementById("pCancelBtn").addEventListener("click",closeProdForm);
+
+document.getElementById("pSaveBtn").addEventListener("click", async()=>{
+  const name     = document.getElementById("pName").value.trim();
+  const price    = document.getElementById("pPrice").value.trim();
+  const category = document.getElementById("pCat").value;
+  const desc     = document.getElementById("pDesc").value.trim();
+  const howToUse = document.getElementById("pHowto").value.trim();
+  const imgFile  = document.getElementById("pImg").files[0];
+  const errEl    = document.getElementById("pErr");
+  const proEl    = document.getElementById("pPro");
+  const saveBtn  = document.getElementById("pSaveBtn");
+  errEl.textContent=""; proEl.textContent="";
+  if(!name){  errEl.textContent="Product name is required."; return; }
+  if(!price){ errEl.textContent="Price is required."; return; }
+  saveBtn.textContent="Saving…"; saveBtn.disabled=true;
+  try {
+    let imageUrl = editingId?(adminProducts.find(x=>x.id===editingId)?.imageUrl||""):"";
+    if(imgFile){
+      proEl.textContent="Compressing image…";
+      const compressed = await compressImageToBlob(imgFile, 800, 0.82);
+      proEl.textContent="Uploading image…";
+      const filename = `prod_${Date.now()}.jpg`;
+      const task=uploadBytesResumable(sRef(storage, filename), compressed, {contentType:"image/jpeg"});
+      imageUrl = await new Promise((resolve,reject)=>{
+        task.on("state_changed",
+          s=>{ proEl.textContent=`Uploading… ${Math.round(s.bytesTransferred/s.totalBytes*100)}%`; },
+          reject,
+          async()=>resolve(await getDownloadURL(task.snapshot.ref))
+        );
+      });
+      proEl.textContent="Image uploaded ✓";
+    }
+    const data={ name, price:Number(price), category, description:desc, howToUse, imageUrl };
+    if(editingId){ await updateDoc(doc(db,"products",editingId),data); toast("Product updated!","success"); }
+    else { data.createdAt=serverTimestamp(); await addDoc(collection(db,"products"),data); toast("Product added!","success"); }
+    closeProdForm();
+    await admFetchProducts(); await fetchProducts(); renderProducts(allProducts);
+  } catch(e){ errEl.textContent=e.message; toast("Error: "+e.message,"error"); }
+  saveBtn.textContent="Save Product"; saveBtn.disabled=false;
+});
+
+async function deleteProd(id){
+  if(!confirm("Delete this product permanently?"))return;
+  try {
+    const p=adminProducts.find(x=>x.id===id);
+    if(p?.imageUrl){ try{ await deleteObject(sRef(storage,p.imageUrl)); }catch(_){} }
+    await deleteDoc(doc(db,"products",id));
+    toast("Product deleted.","success");
+    await admFetchProducts(); await fetchProducts(); renderProducts(allProducts);
+  } catch(e){ toast(e.message,"error"); }
+}
+
+/* ── Admin: Settings ── */
+async function admFetchSettings(){
+  try {
+    const snap=await getDoc(doc(db,"settings","config"));
+    if(snap.exists()){
+      const d=snap.data();
+      document.getElementById("sHero").value      = d.heroText        || "";
+      document.getElementById("sBanner").value    = d.bannerText      || "";
+      document.getElementById("sWA").value        = d.whatsappNumber  || "";
+      document.getElementById("sOrderMsg").value  = d.orderMsgTemplate || DEFAULT_ORDER_MSG;
+      if(d.logoUrl){ const prev=document.getElementById("logoPreviewAdmin"); prev.src=d.logoUrl; prev.style.display="block"; }
+    } else {
+      document.getElementById("sOrderMsg").value = DEFAULT_ORDER_MSG;
+    }
+  } catch(e){ console.warn("Settings:",e); }
+}
+
+document.getElementById("saveSetBtn").addEventListener("click", async()=>{
+  const heroText        = document.getElementById("sHero").value.trim();
+  const bannerText      = document.getElementById("sBanner").value.trim();
+  const whatsappNumber  = document.getElementById("sWA").value.trim();
+  const orderMsgTemplate= document.getElementById("sOrderMsg").value.trim();
+  const btn=document.getElementById("saveSetBtn");
+  const okEl=document.getElementById("setOk"); const errEl=document.getElementById("setErr");
+  okEl.textContent=""; errEl.textContent="";
+  btn.textContent="Saving…"; btn.disabled=true;
+  try {
+    await setDoc(doc(db,"settings","config"),{heroText,bannerText,whatsappNumber,orderMsgTemplate},{merge:true});
+    cachedWANum=whatsappNumber; cachedOrderMsg=orderMsgTemplate;
+    siteSettings={...siteSettings,heroText,bannerText,whatsappNumber,orderMsgTemplate};
+    okEl.textContent="✓ Settings saved!"; toast("Settings saved!","success");
+    setTimeout(()=>okEl.textContent="",3500); applySettings();
+  } catch(e){ errEl.textContent=e.message; toast("Error saving settings.","error"); }
+  btn.textContent="Save All Settings"; btn.disabled=false;
+});
+
+/* ── Admin: Logo ── */
+/* Convert any image file to a compressed JPEG blob via canvas
+   This solves: large file issues, CORS, format issues, size limits */
+function compressImageToBlob(file, maxSize=400, quality=0.85){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = evt => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ratio  = Math.min(maxSize/img.width, maxSize/img.height, 1);
+        canvas.width  = Math.round(img.width  * ratio);
+        canvas.height = Math.round(img.height * ratio);
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(blob => {
+          if(blob) resolve(blob);
+          else     reject(new Error("Image compression failed"));
+        }, "image/jpeg", quality);
+      };
+      img.onerror = ()=>reject(new Error("Could not read image"));
+      img.src = evt.target.result;
+    };
+    reader.onerror = ()=>reject(new Error("Could not read file"));
+    reader.readAsDataURL(file);
+  });
+}
+
+document.getElementById("logoFile").addEventListener("change",()=>{
+  const file=document.getElementById("logoFile").files[0]; if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    const prev=document.getElementById("logoPreviewAdmin");
+    prev.src=e.target.result; prev.style.display="block";
+  };
+  r.readAsDataURL(file);
+});
+
+document.getElementById("saveLogoBtn").addEventListener("click", async()=>{
+  const file  = document.getElementById("logoFile").files[0];
+  const proEl = document.getElementById("logoPro");
+  const errEl = document.getElementById("logoErr");
+  const msgEl = document.getElementById("logoMsg");
+  const btn   = document.getElementById("saveLogoBtn");
+  proEl.textContent=""; errEl.textContent=""; msgEl.textContent="";
+
+  if(!file){ errEl.textContent="Please choose an image file first."; return; }
+
+  btn.textContent="Processing…"; btn.disabled=true;
+
+  try {
+    // Step 1: Compress image so any size works
+    proEl.textContent="Compressing image…";
+    const compressed = await compressImageToBlob(file, 400, 0.85);
+
+    // Step 2: Upload compressed blob to Firebase Storage
+    proEl.textContent="Uploading to Firebase…";
+    // Use a simple flat path — no subfolders to avoid CORS config issues
+    const filename = `logo_${Date.now()}.jpg`;
+    const storageReference = sRef(storage, filename);
+    const task = uploadBytesResumable(storageReference, compressed, { contentType:"image/jpeg" });
+
+    const logoUrl = await new Promise((resolve, reject)=>{
+      task.on("state_changed",
+        snap => {
+          const pct = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
+          proEl.textContent = `Uploading… ${pct}%`;
+        },
+        err => reject(err),
+        async () => resolve(await getDownloadURL(task.snapshot.ref))
+      );
+    });
+
+    // Step 3: Save URL to Firestore
+    await setDoc(doc(db,"settings","config"), { logoUrl }, { merge:true });
+    siteSettings.logoUrl = logoUrl;
+    proEl.textContent = "";
+    msgEl.textContent = "✓ Logo uploaded and saved!";
+    setTimeout(()=>msgEl.textContent="", 4000);
+    toast("Logo updated!", "success");
+    applySettings();
+
+  } catch(e){
+    console.error("Logo upload error:", e);
+    // If Storage fails, show clear guidance
+    if(e.code==="storage/unauthorized" || e.message?.includes("403") || e.message?.includes("permission")){
+      errEl.textContent = "⚠️ Firebase Storage permission denied. Go to Firebase Console → Storage → Rules and set: allow read, write: if true;";
+    } else {
+      errEl.textContent = "Upload failed: " + e.message;
+    }
+    toast("Logo upload failed.","error");
+  }
+  btn.textContent="Upload & Save Logo"; btn.disabled=false;
+});
+
+document.getElementById("removeLogoBtn").addEventListener("click", async()=>{
+  if(!confirm("Remove the site logo?"))return;
+  const errEl=document.getElementById("logoErr"); const msgEl=document.getElementById("logoMsg");
+  errEl.textContent=""; msgEl.textContent="";
+  try {
+    await setDoc(doc(db,"settings","config"),{logoUrl:""},{merge:true});
+    siteSettings.logoUrl="";
+    document.getElementById("siteLogoImg").style.display="none";
+    const prev=document.getElementById("logoPreviewAdmin"); prev.src=""; prev.style.display="none";
+    document.getElementById("logoFile").value="";
+    msgEl.textContent="✓ Logo removed."; setTimeout(()=>msgEl.textContent="",3000); toast("Logo removed.","success");
+  } catch(e){ errEl.textContent=e.message; toast("Error removing logo.","error"); }
+});
+
+/* ── Admin: Danger Zone ── */
+document.getElementById("deleteAllBtn").addEventListener("click", async()=>{
+  if(currentRole!=="superadmin"){ toast("Super Admin only.","error"); return; }
+  if(!confirm("DELETE ALL PRODUCTS permanently from Firestore?"))return;
+  if(!confirm("Last warning — this cannot be undone. Continue?"))return;
+  try {
+    const snap=await getDocs(collection(db,"products"));
+    await Promise.all(snap.docs.map(d=>deleteDoc(doc(db,"products",d.id))));
+    toast(`Deleted ${snap.docs.length} products.`,"warn");
+    await admFetchProducts(); await fetchProducts(); renderProducts(allProducts);
+  } catch(e){ toast(e.message,"error"); }
+});
+
+document.getElementById("resetSetBtn").addEventListener("click", async()=>{
+  if(currentRole!=="superadmin"){ toast("Super Admin only.","error"); return; }
+  if(!confirm("Reset ALL site settings (hero, banner, WhatsApp, logo, order message)?"))return;
+  try {
+    await setDoc(doc(db,"settings","config"),{heroText:"",bannerText:"",whatsappNumber:"",logoUrl:"",orderMsgTemplate:""});
+    siteSettings={heroText:"",bannerText:"",whatsappNumber:"",logoUrl:"",orderMsgTemplate:""};
+    toast("All settings reset.","warn"); await admFetchSettings(); applySettings();
+  } catch(e){ toast(e.message,"error"); }
+});
+
+/* ── Boot ── */
+router();
+setTimeout(hideLoader, 7000);
+</script>
+
+</body>
+</html>
